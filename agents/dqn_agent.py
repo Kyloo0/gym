@@ -30,13 +30,16 @@ class QNetwork(nn.Module):
 
         self.network = nn.Sequential(
 
-            nn.Linear(observation_dim, 128),
-            nn.ReLU(),
+            nn.Linear(observation_dim, 8),
+            nn.GELU(),
 
-            nn.Linear(128, 128),
-            nn.ReLU(),
+            nn.Linear(8,16),
+            nn.GELU(),
 
-            nn.Linear(128, action_dim)
+            nn.Linear(16, 8),
+            nn.GELU(),
+
+            nn.Linear(8, action_dim)
         )
 
     def forward(self, x):
@@ -60,7 +63,7 @@ class DQNAgent:
         self,
         observation_dim,
         action_dim,
-        lr=1e-3,
+        lr=1e-2,
         gamma=0.99,
         epsilon=1.0,
         epsilon_decay=0.995,
@@ -214,6 +217,12 @@ class DQNAgent:
         #     self.epsilon * self.epsilon_decay
         # )
 
+    def decay_epsilon(self):
+
+        self.epsilon = max(
+            self.epsilon_min,
+            self.epsilon * self.epsilon_decay
+        )
     # =====================================================
     # TARGET NETWORK UPDATE
     # =====================================================
@@ -242,11 +251,3 @@ class DQNAgent:
         )
 
         self.policy_net.eval()
-
-
-    def decay_epsilon(self):
-
-        self.epsilon = max(
-            self.epsilon_min,
-            self.epsilon * self.epsilon_decay
-        )
